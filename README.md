@@ -34,5 +34,5 @@ print(success_probability(counts, target=5, n_qubits=3))
 6. Show noisy simulation with depolarizing, bit-flip, and phase-flip errors.
 7. Explain limitation: the oracle is simplified; real AES oracle requires reversible AES.
 
-## Viva-safe conclusion
+## Conclusion
 Grover's algorithm does not instantly break AES. It gives a quadratic speedup. So AES-128's exhaustive-search complexity changes from about 2^128 to about 2^64 quantum oracle calls in the ideal model, while AES-256 changes from 2^256 to about 2^128. This is why larger symmetric keys are preferred for long-term high-security contexts, although practical quantum attacks on AES are far beyond current hardware.
