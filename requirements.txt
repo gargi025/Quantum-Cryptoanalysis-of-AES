@@ -1,0 +1,7 @@
+qiskit>=1.0
+qiskit-aer>=0.14
+pycryptodome>=3.20
+matplotlib>=3.8
+numpy>=1.26
+pandas>=2.2
+streamlit>=1.36
