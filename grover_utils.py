@@ -161,20 +161,33 @@ def success_probability(counts: Dict[str, int], target: int, n_qubits: int) -> f
 
 def make_noise_model(kind: str, p: float) -> NoiseModel:
     """Create depolarizing, bit-flip, or phase-flip noise model."""
+
+    kind = kind.lower().strip().replace("-", "_").replace(" ", "_")
+
+    if p < 0 or p > 1:
+        raise ValueError("Noise probability p must be between 0 and 1")
+
     noise_model = NoiseModel()
+
+    if kind in ["none", "ideal", "no_noise"]:
+        return noise_model
+
     if kind == "depolarizing":
         err1 = depolarizing_error(p, 1)
         err2 = depolarizing_error(p, 2)
-    elif kind == "bit_flip":
+
+    elif kind in ["bit_flip", "bitflip"]:
         err1 = pauli_error([("X", p), ("I", 1 - p)])
         err2 = err1.tensor(err1)
-    elif kind == "phase_flip":
+
+    elif kind in ["phase_flip", "phaseflip"]:
         err1 = pauli_error([("Z", p), ("I", 1 - p)])
         err2 = err1.tensor(err1)
-    else:
-        raise ValueError("kind must be depolarizing, bit_flip, or phase_flip")
 
-    # These are the gates used after transpilation for small Grover circuits.
+    else:
+        raise ValueError("kind must be depolarizing, bit_flip, phase_flip, or none")
+
     noise_model.add_all_qubit_quantum_error(err1, ["h", "x", "z", "sx", "rz"])
-    noise_model.add_all_qubit_quantum_error(err2, ["cx", "cz"])
+    noise_model.add_all_qubit_quantum_error(err2, ["cx", "cz", "mcx"])
+
     return noise_model
