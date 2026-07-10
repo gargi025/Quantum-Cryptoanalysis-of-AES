@@ -140,12 +140,13 @@ def build_grover_circuit(n_qubits: int, target: int, iterations: int | None = No
     return qc
 
 
-def run_counts(qc: QuantumCircuit, shots: int = 1024, noise_model: NoiseModel | None = None) -> Dict[str, int]:
+def run_counts(qc: QuantumCircuit, shots: int = 1024, noise_model: NoiseModel | None = None, seed: int | None = None) -> Dict[str, int]:
     """Run a circuit on AerSimulator and return measurement counts."""
-    simulator = AerSimulator(noise_model=noise_model)
-    tqc = transpile(qc, simulator)
+    simulator = AerSimulator(noise_model=noise_model, seed_simulator=seed)
+    tqc = transpile(qc, simulator, seed_transpiler=seed)
     result = simulator.run(tqc, shots=shots).result()
     return result.get_counts()
+
 
 
 def qiskit_count_key(target: int, n_qubits: int) -> str:
