@@ -160,6 +160,40 @@ def success_probability(counts: Dict[str, int], target: int, n_qubits: int) -> f
     return counts.get(key, 0) / max(1, sum(counts.values()))
 
 
+@dataclass
+class NoisySweepResult:
+    mean: float
+    std: float
+    per_seed: List[float]
+
+
+def run_noisy_multiseed(
+    n_qubits: int,
+    target: int,
+    noise_model: NoiseModel | None,
+    shots: int = 1024,
+    n_seeds: int = 10,
+    iterations: int | None = None,
+) -> NoisySweepResult:
+    """Run a noisy Grover simulation across multiple random seeds.
+
+    Each seed produces an independent AerSimulator run, so the spread across
+    seeds reflects shot-noise and stochastic gate-error sampling rather than
+    a single lucky or unlucky draw. Returns mean, std, and per-seed probabilities.
+    """
+    import numpy as np
+
+    probs: List[float] = []
+    qc = build_grover_circuit(n_qubits, target, iterations=iterations, measure=True)
+
+    for seed in range(n_seeds):
+        counts = run_counts(qc, shots=shots, noise_model=noise_model, seed=seed)
+        probs.append(success_probability(counts, target, n_qubits))
+
+    arr = np.array(probs)
+    return NoisySweepResult(mean=float(arr.mean()), std=float(arr.std()), per_seed=probs)
+
+ 
 def make_noise_model(kind: str, p: float) -> NoiseModel:
     """Create depolarizing, bit-flip, or phase-flip noise model."""
 
